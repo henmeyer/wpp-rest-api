@@ -9,10 +9,11 @@ import makeWASocket, {
 
 import logger from '../utils/logger';
 import { createFolder, deleteFolder } from '../utils/fs';
-import { Message } from './message';
+import { IMessage } from 'interfaces/message';
+import { RedisMessage } from 'interfaces/redis';
 import sessionsArray from './sessionsArray';
-import WhatsAppMonitor from './whatsAppMonitor';
 import redis from '../db/redis';
+import whatsAppMonitor from '../services/whatsappServices/monitorService';
 
 // external map to store retry counts of messages when decryption/encryption fails
 // keep this out of the socket itself, so as to prevent a message decryption/encryption loop across socket restarts
@@ -37,7 +38,7 @@ export class WhatsApp {
       createFolder(this.folderPath);
       await this.startSocket();
       sessionsArray.push(this);
-      this.startWhatsAppMonitor();
+      whatsAppMonitor(this);
       logger.info(`${this.name} has started`);
     } catch (error) {
       logger.error(error);
@@ -57,14 +58,61 @@ export class WhatsApp {
     }
   }
 
-  async sendMessage(to: string, message: Message) {
+  async sendTextMessage(to: string, message: IMessage) {
     try {
       if (!this.socket) throw new Error('WhatsApp not found.');
+      if (!message.text) throw new Error('Message is blank.');
       const sentMessage = await this.socket.sendMessage(to, {
-        text: message.content,
+        text: message.text,
       });
-      console.log(sentMessage);
+      if (!sentMessage) throw Error(`Message to ${to} was not sent`);
+
+      redis.set(`messages:${sentMessage.key.id}`, {
+        key: JSON.stringify(sentMessage.key),
+        status: sentMessage.status,
+      });
       return sentMessage;
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async sendAttachmentsMessage(to: string, message: IMessage) {
+    try {
+      if (!this.socket) throw new Error('WhatsApp not found.');
+
+      if (!message?.attachment) return;
+
+      const sentMessage = await this.socket.sendMessage(to, {
+        image: { url: message.attachment.url },
+        caption: message?.text,
+        mimetype: message.attachment.mimetype,
+      });
+
+      if (!sentMessage) throw Error(`Message to ${to} was not sent`);
+
+      redis.set(`messages:${sentMessage.key.id}`, {
+        key: JSON.stringify(sentMessage.key),
+        status: sentMessage.status,
+      });
+
+      return sentMessage;
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async deleteMessage(to: string, messageId: string) {
+    try {
+      if (!this.socket) throw new Error('WhatsApp not found.');
+
+      const deletedMessage = (await redis.get(
+        `messages:${messageId}`,
+      )) as RedisMessage;
+
+      if (!deletedMessage) throw Error(`${messageId} not found`);
+
+      return await this.socket.sendMessage(to, { delete: deletedMessage.key });
     } catch (error) {
       logger.error(error);
     }
@@ -80,10 +128,6 @@ export class WhatsApp {
     } catch (error) {
       logger.error(error);
     }
-  }
-
-  startWhatsAppMonitor() {
-    new WhatsAppMonitor(this);
   }
 
   async startSocket() {

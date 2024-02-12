@@ -56,6 +56,16 @@ class Redis {
     }
   }
 
+  async get(key: string) {
+    try {
+      const data = await this.client.get(key);
+      if (!data) return null;
+      return await JSON.parse(data);
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
   async delete(key: string) {
     try {
       return await this.client.del(key);
@@ -81,6 +91,31 @@ class Redis {
         {
           ON: 'JSON',
           PREFIX: 'whatsapps:',
+        },
+      )
+      .then(() => {
+        logger.info('idx:whatsapps index were created on Redis');
+      })
+      .catch(err => {
+        if (err.message === 'Index already exists') {
+          return;
+        }
+        logger.error('Failed to create indexes on Redis');
+        logger.error(err);
+      });
+
+    await this.client.ft
+      .create(
+        'idx:messages',
+        {
+          '$.status': {
+            type: SchemaFieldTypes.NUMERIC,
+            AS: 'status',
+          },
+        },
+        {
+          ON: 'JSON',
+          PREFIX: 'messages:',
         },
       )
       .then(() => {

@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
-import { Message } from '../../models/message';
 import sessionsArray from '../../models/sessionsArray';
+import { IMessage } from 'interfaces/message';
 
 export const sendMessage: RequestHandler = async (req, res) => {
   const { name } = req.params;
-  const { content, to } = req.body;
+  const { text, attachment, to } = req.body;
 
   const whatsapp = sessionsArray.find(name);
 
@@ -20,9 +20,19 @@ export const sendMessage: RequestHandler = async (req, res) => {
       .json({ message: `Phone number does not exist on WhatsApp` });
   }
 
-  const message = new Message(content);
+  const message: IMessage = {
+    text,
+    attachment,
+  };
 
-  const sentMessage = await whatsapp.sendMessage(phoneNumber, message);
+  let sentMessage;
+
+  if (message.attachment) {
+    sentMessage = await whatsapp.sendAttachmentsMessage(phoneNumber, message);
+  } else {
+    sentMessage = await whatsapp.sendTextMessage(phoneNumber, message);
+  }
+
   return res.status(200).json({ sentMessage });
 };
 
