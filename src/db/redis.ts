@@ -3,7 +3,8 @@ import logger from '../utils/logger';
 import '../env';
 
 export type RedisDataType = {
-  [x: string]: string | number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [x: string]: string | object | number | any;
 };
 
 class Redis {
@@ -58,9 +59,7 @@ class Redis {
 
   async get(key: string) {
     try {
-      const data = await this.client.get(key);
-      if (!data) return null;
-      return await JSON.parse(data);
+      return (await this.client.json.get(key)) as RedisDataType;
     } catch (error) {
       logger.error(error);
     }

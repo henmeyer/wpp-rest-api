@@ -4,8 +4,7 @@ import sessionsArray from '../../models/sessionsArray';
 
 export const start: RequestHandler = (req, res) => {
   const { name } = req.params;
-  const zap = new WhatsApp(name);
-  sessionsArray.push(zap);
+  new WhatsApp(name);
   return res.status(200).json({ message: 'WhatsApp has started' });
 };
 

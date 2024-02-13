@@ -3,7 +3,7 @@ import { start, close } from '../controllers/api/whatsappsController';
 
 const whatappRouter: Router = Router();
 
-whatappRouter.put('/:name/start', start);
+whatappRouter.post('/:name', start);
 whatappRouter.put('/:name/close', close);
 
 export default whatappRouter;

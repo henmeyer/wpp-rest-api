@@ -5,7 +5,7 @@ import { WhatsApp } from '../../models/whatsapp';
 import logger from '../../utils/logger';
 import { deleteFolder } from '../../utils/fs';
 import redis from '../../db/redis';
-import { WHATSAPP_STATUS } from 'constants/whatsapp';
+import { WHATSAPP_STATUS } from '../../constants/whatsapp';
 
 /**
  * Handle all Baileys whatsapp.socket events
@@ -57,6 +57,10 @@ const whatsAppMonitor = (whatsapp: WhatsApp) => {
       // Connected
       else if (connection === 'open') {
         whatsapp.qrCount = 0;
+        redis.set(`whatsapps:${whatsapp.name}`, {
+          name: whatsapp.name,
+          status: WHATSAPP_STATUS.connected,
+        });
       } else if (qr) {
         // Handling qr codes
         whatsapp.qrCount += 1;
