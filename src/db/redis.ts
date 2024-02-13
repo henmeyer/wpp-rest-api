@@ -1,6 +1,7 @@
 import { RedisClientType, createClient, SchemaFieldTypes } from 'redis';
 import logger from '../utils/logger';
 import '../env';
+import { EXPIRE_KEY_SECONDS } from '../constants';
 
 export type RedisDataType = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,7 +44,8 @@ class Redis {
 
   async set(key: string, data: RedisDataType) {
     try {
-      return await this.client.json.set(key, '$', data);
+      await this.client.json.set(key, '$', data);
+      await this.client.expire(key, EXPIRE_KEY_SECONDS);
     } catch (error) {
       logger.error(error);
     }

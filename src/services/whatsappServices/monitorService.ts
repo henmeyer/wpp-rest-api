@@ -5,7 +5,7 @@ import { WhatsApp } from '../../models/whatsapp';
 import logger from '../../utils/logger';
 import { deleteFolder } from '../../utils/fs';
 import redis from '../../db/redis';
-import { WHATSAPP_STATUS } from '../../constants/whatsapp';
+import { WHATSAPP_STATUS } from '../../constants';
 
 /**
  * Handle all Baileys whatsapp.socket events

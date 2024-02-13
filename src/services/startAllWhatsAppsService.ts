@@ -1,4 +1,4 @@
-import { WHATSAPP_STATUS } from '../constants/whatsapp';
+import { WHATSAPP_STATUS } from '../constants';
 import redis from '../db/redis';
 import { asyncTimeout } from '../helpers/asyncTimeout';
 import { WhatsApp } from '../models/whatsapp';
