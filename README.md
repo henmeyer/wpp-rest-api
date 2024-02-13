@@ -56,7 +56,7 @@ npm run build
 <h4>Start the server</h4>
 
 ```bash
-npm run build
+npm start
 ```
 
 <h2 id="custom-configs">Custom configurations</h3>
