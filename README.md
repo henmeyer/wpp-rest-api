@@ -21,6 +21,8 @@
 
 ⏳ Authentication
 
+⏳ Documentation
+
 ⏳ Webhooks
 
 ⏳ Frontend
