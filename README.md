@@ -19,7 +19,7 @@
 
 ✅ Delete a message
 
-⏳ Authentication
+✅ Authentication
 
 ⏳ Documentation
 
@@ -31,9 +31,9 @@
 
 <h3>Requirements</h3>
 
-  ⚠️ [Node.js](https://nodejs.org/en)
-  
-  ⚠️ [Redis Stack](https://redis.io/docs/install/install-stack/)
+⚠️ [Node.js](https://nodejs.org/en)
+
+⚠️ [Redis Stack](https://redis.io/docs/install/install-stack/)
 
 <h3>Running the server</h3>
 
@@ -66,6 +66,7 @@ npm start
 ```bash
 cp .env.example .env
 ```
+
 <p>Edit .env</p>
 
 ```.env
