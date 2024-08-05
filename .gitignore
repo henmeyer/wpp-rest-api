@@ -7,6 +7,7 @@ lib-cov
 *.pid
 *.gz
 *.swp
+*.lock
 
 pids
 logs
@@ -21,9 +22,6 @@ node_modules
 
 # Ignore built ts files
 build/**/*
-
-# ignore yarn.lock
-yarn.lock
 
 #ignore wpp sessions
 .wpp_sessions
