@@ -1,27 +1,38 @@
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
-*.swp
-*.lock
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-pids
-logs
-results
-tmp
-
-# API keys and secrets
-.env
-
-# Dependency directory
+# Dependencies
 node_modules
+.pnp
+.pnp.js
 
-# Ignore built ts files
-build/**/*
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-#ignore wpp sessions
-.wpp_sessions
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build Outputs
+.next/
+out/
+build
+dist
+
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+*.pem
