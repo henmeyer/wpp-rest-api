@@ -66,23 +66,20 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <div className={styles.ctas}>
-          <label>
-            Session Name{" "}
-            <input
-              name="sessionNameInput"
-              type="text"
-              onChange={e => setSessionName(e.target.value)}
-            />
-          </label>
-          <button onClick={startSession} className={styles.secondary}>
-            Start Session
-          </button>
+          <input
+            name="sessionNameInput"
+            type="text"
+            placeholder="Session name"
+            onChange={e => setSessionName(e.target.value)}
+          />
+          <button onClick={startSession}>Start Session</button>
         </div>
         <TableComponent
-          columns={["Nome", "Ações"]}
+          columns={["Name", "Actions"]}
           rows={sessions}
           closeFunction={closeSession}
         ></TableComponent>
+        <button onClick={getSessions}>Update</button>
       </main>
       <footer className={styles.footer}></footer>
     </div>
