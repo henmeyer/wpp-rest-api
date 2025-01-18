@@ -1,11 +1,13 @@
-'use client';
-import Image, { type ImageProps } from 'next/image';
-import { Button } from '@repo/ui/button';
-import styles from './page.module.css';
-import { useState } from 'react';
-import { Axios } from './utils/axios';
+"use client";
+import Image, { type ImageProps } from "next/image";
+import { Button } from "@repo/ui/button";
+import styles from "./page.module.css";
+import { useEffect, useState } from "react";
+import { Axios } from "./utils/axios";
+import { WhatsApp } from "./types";
+import TableComponent from "./components/whatsapps/TableComponent";
 
-type Props = Omit<ImageProps, 'src'> & {
+type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
   srcDark: string;
 };
@@ -22,81 +24,67 @@ const ThemeImage = (props: Props) => {
 };
 
 export default function Home() {
-  const [sessionName, setSessionName] = useState('');
+  const [sessionName, setSessionName] = useState("");
+  const [sessions, setSessions] = useState<WhatsApp[]>([]);
+
+  useEffect(() => {
+    getSessions();
+  }, []);
 
   const startSession = async () => {
     if (!sessionName.length) return;
-    const response = await Axios.post(`/whatsapps/${sessionName}`);
-    alert(JSON.stringify(response.data));
+    try {
+      await Axios.post(`/whatsapps/${sessionName}`);
+      alert(`Session ${sessionName} has started`);
+      setSessions([...sessions, { name: sessionName }]);
+    } catch (error) {
+      setSessions(sessions.filter(s => s.name !== sessionName));
+      alert("Error starting WhatsApp session");
+    }
+  };
+
+  const getSessions = async () => {
+    try {
+      const { data } = await Axios.get("/whatsapps");
+      setSessions(data.data as WhatsApp[]);
+    } catch (error) {
+      alert("Error getting WhatsApp sessions");
+    }
+  };
+
+  const closeSession = async (name: string) => {
+    try {
+      await Axios.delete(`/whatsapps/${name}`);
+      setSessions(sessions.filter(s => s.name !== name));
+      alert(`Session ${sessionName} was deleted`);
+    } catch {
+      alert("Error deleting WhatsApp session");
+    }
   };
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="club-athletico-paranaense.svg"
-          srcDark="club-athletico-paranaense.svg"
-          alt="CAP logo"
-          width={500}
-          height={500}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-            {process.env.NEXT_PUBLIC_WPP_URL}
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <label>
-          Session Name{' '}
-          <input
-            name="sessionNameInput"
-            type="text"
-            onChange={e => setSessionName(e.target.value)}
-          />
-        </label>
         <div className={styles.ctas}>
+          <label>
+            Session Name{" "}
+            <input
+              name="sessionNameInput"
+              type="text"
+              onChange={e => setSessionName(e.target.value)}
+            />
+          </label>
           <button onClick={startSession} className={styles.secondary}>
             Start Session
           </button>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
+        <TableComponent
+          columns={["Nome", "Ações"]}
+          rows={sessions}
+          closeFunction={closeSession}
+        ></TableComponent>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turbo.build?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turbo.build →
-        </a>
-      </footer>
+      <footer className={styles.footer}></footer>
     </div>
   );
 }

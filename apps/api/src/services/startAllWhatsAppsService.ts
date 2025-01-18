@@ -14,7 +14,11 @@ const startAllWhatsAppsService = async () => {
   for await (const { value } of allWhatsApps.documents) {
     const whatsapp = value as { name: string; status: number };
     await asyncTimeout(1000);
-    new WhatsApp(whatsapp.name);
+    const session = new WhatsApp(whatsapp.name);
+    if (whatsapp.status !== WHATSAPP_STATUS.connected) {
+      await asyncTimeout(1000);
+      session.close();
+    }
   }
 };
 
